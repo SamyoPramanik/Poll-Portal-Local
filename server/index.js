@@ -12,7 +12,7 @@ const port = 5004;
 const app = express();
 
 dotenv.config();
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(cookieparser(process.env.COOKIE_SECRET));
 

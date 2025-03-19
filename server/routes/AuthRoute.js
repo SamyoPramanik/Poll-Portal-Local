@@ -7,7 +7,6 @@ import {
     updatePassword,
 } from "../controllers/AuthController.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
-import { verifyEmail } from "../middlewares/verityEmail.js";
 
 const authRouter = Router();
 

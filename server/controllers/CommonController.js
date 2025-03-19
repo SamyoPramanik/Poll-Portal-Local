@@ -45,7 +45,6 @@ export const getPoll = async (req, res) => {
 
 export const createPoll = async (req, res) => {
     try {
-        console.log("hello");
         const {
             title,
             started_at,
@@ -55,6 +54,14 @@ export const createPoll = async (req, res) => {
             min_select,
             max_select,
         } = req.body;
+
+        console.log(
+            title,
+            started_at,
+            finished_at,
+            visibility,
+            result_visibility
+        );
 
         const creator_id = req.user.id;
 
@@ -102,25 +109,6 @@ export const getResult = async (req, res) => {
             res.status(200).json(result.rows);
         } else {
             res.status(404).json("no poll found");
-        }
-    } catch (err) {
-        console.log(err);
-        res.status(500).json("Internal server error");
-    }
-};
-
-export const searchUser = async (req, res) => {
-    try {
-        const { q } = req.query;
-        const searchPattern = `%${q}%`;
-
-        let sql = `SELECT ID, NAME, STD_ID, EMAIL FROM USERS WHERE STD_ID LIKE $1 OR NAME LIKE $2 ORDER BY NAME ASC`;
-
-        let result = await pool.query(sql, [searchPattern, searchPattern]);
-        if (result.rows.length > 0) {
-            res.status(200).json(result.rows);
-        } else {
-            res.status(404).json("no user found");
         }
     } catch (err) {
         console.log(err);

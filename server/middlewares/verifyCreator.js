@@ -1,5 +1,5 @@
 import pkg from "jsonwebtoken";
-import { pool } from "../db";
+import { pool } from "../db.js";
 const { sign, verify } = pkg;
 
 export const verifyCreator = async (req, res, next) => {

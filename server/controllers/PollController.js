@@ -1,5 +1,5 @@
 import { json } from "express";
-import { pool } from "../db";
+import { pool } from "../db.js";
 
 export const getPoll = async (req, res) => {
     try {

@@ -4,7 +4,9 @@ const { sign, verify } = pkg;
 
 export const signIn = async (req, res) => {
     try {
+        console.log("signing in");
         const { student_id, password } = req.body;
+        console.log(req.body);
 
         let sql = `SELECT ID, NAME, STD_ID, EMAIL, VERIFIED FROM USERS WHERE STD_ID = $1 AND PASSWORD = $2 LIMIT 1`;
         let result = await pool.query(sql, [student_id, password]);
@@ -16,8 +18,7 @@ export const signIn = async (req, res) => {
             });
 
             console.log(token);
-            res.cookie("token", token);
-            res.status(200).json("SignIn successful");
+            res.status(200).cookie("token", token).json("SignIn successful");
         } else {
             res.status(404).json("Invalid credentials");
         }
@@ -29,18 +30,23 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
     try {
-        const { name, student_id, email, password } = req.body;
+        const { student_name, student_id, student_email, password } = req.body;
 
         console.log(req.body);
 
-        if (!email || email.length < 12) {
+        if (isNaN(student_id)) {
+            res.status(400).json("Invalid Student Id");
+            return;
+        }
+
+        if (!student_email || student_email.length < 12) {
             res.status(400).json(
                 "Invalid email. Try with your institutional email"
             );
             return;
         }
 
-        const id_from_email = email.substring(0, 7);
+        const id_from_email = student_email.substring(0, 7);
         if (student_id != id_from_email) {
             res.status(400).json(
                 "Invalid email. Try with your institutional email"
@@ -64,7 +70,12 @@ export const signUp = async (req, res) => {
 
             console.log("new user, entering in db");
 
-            result = await pool.query(sql, [name, student_id, email, password]);
+            result = await pool.query(sql, [
+                student_name,
+                student_id,
+                student_email,
+                password,
+            ]);
 
             console.log("user added in db");
 
