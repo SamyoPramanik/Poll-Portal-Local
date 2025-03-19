@@ -4,6 +4,7 @@ import {
     addModerator,
     addOption,
     addSubpoll,
+    availableMod,
     getGroups,
     getModerators,
     getOptions,
@@ -135,5 +136,6 @@ PollRouter.get(
     verifyModerator,
     getVoters
 );
+PollRouter.get("/searchUser", verifyToken, verifyEmail, availableMod);
 
 export default PollRouter;

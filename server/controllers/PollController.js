@@ -282,6 +282,30 @@ export const getVoters = async (req, res) => {
     }
 };
 
+export const availableMod = async (req, res) => {
+    try {
+        const poll_id = req.params.id;
+        const { q } = req.query;
+        const searchPattern = `%${q}%`;
+
+        let sql = `SELECT ID, NAME, STD_ID, EMAIL FROM USERS U WHERE (STD_ID LIKE $1 OR NAME LIKE $2) AND NOT EXISTS(SELECT 1 FROM MODERATIONS WHERE POLL_ID = $3 AND STD_ID = U.ID) ORDER BY NAME ASC`;
+
+        let result = await pool.query(sql, [
+            searchPattern,
+            searchPattern,
+            poll_id,
+        ]);
+        if (result.rows.length > 0) {
+            res.status(200).json(result.rows);
+        } else {
+            res.status(404).json("no user found");
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json("Internal server error");
+    }
+};
+
 const canVote = async (std_id, poll_id, option_id) => {
     try {
         const vote_possible = true;
