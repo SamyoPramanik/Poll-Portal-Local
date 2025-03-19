@@ -10,6 +10,7 @@ export const verifyEmail = (req, res, next) => {
             res.status(403).json("Unverified account");
             return;
         }
+        next();
     } catch (err) {
         console.log(err);
         res.status(403).json("Access Token verification failed");

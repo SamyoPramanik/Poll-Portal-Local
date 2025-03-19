@@ -10,6 +10,7 @@ import {
     getPoll,
     getResult,
     getSubpolls,
+    getVoters,
     giveVote,
     removeGroup,
     removeModerator,
@@ -17,24 +18,122 @@ import {
     removeSubpoll,
     update,
 } from "../controllers/PollController.js";
+import { verifyToken } from "../middlewares/verifyToken.js";
+import { verifyEmail } from "../middlewares/verityEmail.js";
+import { verifyCreator } from "../middlewares/verifyCreator.js";
+import { verifyModerator } from "../middlewares/verifyModerator.js";
 
 const PollRouter = Router();
 
-PollRouter.get("/:id", getPoll);
-PollRouter.get("/:id/options", getOptions);
-PollRouter.get("/:id/groups", getGroups);
-PollRouter.get("/:id/add-moderator", addModerator);
-PollRouter.get("/:id/remove-moderator", removeModerator);
-PollRouter.post("/:id/add-option", addOption);
-PollRouter.get("/:id/remove-option", removeOption);
-PollRouter.post("/:id/add-group", addGroup);
-PollRouter.get("/:id/remove-group", removeGroup);
-PollRouter.get("/:id/result", getResult);
-PollRouter.post("/:id/vote", giveVote);
-PollRouter.post("/:id/update", update);
-PollRouter.get("/:id/moderators", getModerators);
-PollRouter.get("/:id/subpolls", getSubpolls);
-PollRouter.get("/:id/remove-subpoll", removeSubpoll);
-PollRouter.get("/:id/add-subpoll", addSubpoll);
+PollRouter.get("/:id", verifyToken, verifyEmail, verifyModerator, getPoll);
+PollRouter.get(
+    "/:id/options",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    getOptions
+);
+PollRouter.get(
+    "/:id/groups",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    getGroups
+);
+PollRouter.get(
+    "/:id/add-moderator/:std_id",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    verifyCreator,
+    addModerator
+);
+PollRouter.get(
+    "/:id/remove-moderator/:std_id",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    verifyCreator,
+    removeModerator
+);
+PollRouter.post(
+    "/:id/add-option",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    addOption
+);
+PollRouter.get(
+    "/:id/remove-option/:option_id",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    removeOption
+);
+PollRouter.post(
+    "/:id/add-group",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    addGroup
+);
+PollRouter.get(
+    "/:id/remove-group/:group_id",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    removeGroup
+);
+PollRouter.get(
+    "/:id/result",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    getResult
+);
+PollRouter.post("/:id/vote", verifyToken, verifyEmail, giveVote);
+PollRouter.post(
+    "/:id/update",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    update
+);
+PollRouter.get(
+    "/:id/moderators",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    verifyCreator,
+    getModerators
+);
+PollRouter.get(
+    "/:id/subpolls",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    getSubpolls
+);
+PollRouter.get(
+    "/:id/remove-subpoll",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    removeSubpoll
+);
+PollRouter.get(
+    "/:id/add-subpoll",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    addSubpoll
+);
+PollRouter.get(
+    "/:id/voters",
+    verifyToken,
+    verifyEmail,
+    verifyModerator,
+    getVoters
+);
 
 export default PollRouter;

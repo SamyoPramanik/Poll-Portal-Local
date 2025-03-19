@@ -6,7 +6,7 @@ export const signIn = async (req, res) => {
     try {
         const { student_id, password } = req.body;
 
-        let sql = `SELECT ID, NAME, STD_ID, EMAIL, VERIFIED FROM USERS WHERE STD_ID = $1	AND PASSWORD = $2 LIMIT 1`;
+        let sql = `SELECT ID, NAME, STD_ID, EMAIL, VERIFIED FROM USERS WHERE STD_ID = $1 AND PASSWORD = $2 LIMIT 1`;
         let result = await pool.query(sql, [student_id, password]);
 
         if (result.rows.length == 1) {
@@ -33,8 +33,14 @@ export const signUp = async (req, res) => {
 
         console.log(req.body);
 
-        const id_from_email = email.substring(0, 7);
+        if (!email || email.length < 12) {
+            res.status(400).json(
+                "Invalid email. Try with your institutional email"
+            );
+            return;
+        }
 
+        const id_from_email = email.substring(0, 7);
         if (student_id != id_from_email) {
             res.status(400).json(
                 "Invalid email. Try with your institutional email"
