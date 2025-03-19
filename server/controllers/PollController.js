@@ -309,12 +309,13 @@ export const availableMod = async (req, res) => {
 const canVote = async (std_id, poll_id, option_id) => {
     try {
         const vote_possible = true;
-        let sql = `SELECT * FROM GROUPS WHERE MIN_STDID <= $1 AND MAX_STDID >= $2 AND NOT EXISTS(SELECT 1 FROM VOTED WHERE STDID = $3 AND POLL_ID = $4) AND POLL_ID = $5`;
+        let sql = `SELECT * FROM GROUPS WHERE MIN_STDID <= $1 AND MAX_STDID >= $2 AND NOT EXISTS(SELECT 1 FROM VOTED WHERE STDID = $3 AND POLL_ID = $4) AND EXISTS(SELECT 1 FROM POLL WHERE STARTED_AT <= NOW() AND FINISHED_AT >= NOW() AND ID = $5) AND POLL_ID = $6`;
 
         let result = await pool.query(sql, [
             std_id,
             std_id,
             std_id,
+            poll_id,
             poll_id,
             poll_id,
         ]);
