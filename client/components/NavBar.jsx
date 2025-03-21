@@ -3,12 +3,16 @@ import useUserStore from "@/store/userStore";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import NewPoll from "./NewPoll";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const NavBar = () => {
+    const router = useRouter();
     const { userInfo, setUserInfo, signedIn, setSignedIn } = useUserStore();
 
     const [profileCardVisible, setProfileCardVisible] = useState(false);
     const [newPollVisible, setNewPollVisible] = useState(false);
+    console.log(signedIn);
     useEffect(() => {
         if (!signedIn) {
             (async () => {
@@ -38,6 +42,17 @@ const NavBar = () => {
             })();
         }
     }, []);
+    const signOut = async () => {
+        await fetch("http://localhost:5004/auth/sign-out", {
+            credentials: "include",
+        });
+        setSignedIn(false);
+        toast.info("Signed Out.", {
+            theme: "colored",
+            hideProgressBar: true,
+        });
+        router.replace("/");
+    };
     return (
         <div className="flex sticky p-4">
             <div className="flex flex-1 text-4xl font-bold">Poll Portal</div>
@@ -71,6 +86,7 @@ const NavBar = () => {
                                 <Link
                                     className="p-2 hover:bg-slate-200 rounded-sm"
                                     href="#"
+                                    onClick={signOut}
                                 >
                                     Sign Out
                                 </Link>

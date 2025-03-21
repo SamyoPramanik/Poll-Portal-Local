@@ -4,7 +4,7 @@ import { pool } from "../db.js";
 export const getPoll = async (req, res) => {
     try {
         const poll_id = req.params.id;
-        let sql = `SELECT * FROM POLLS WHERE ID = $1 LIMIT 1`;
+        let sql = `SELECT * FROM POLL WHERE ID = $1 LIMIT 1`;
         let result = await pool.query(sql, [poll_id]);
         if (result.rows.length == 1) {
             res.status(200).json(result.rows[0]);
@@ -36,13 +36,9 @@ export const getGroups = async (req, res) => {
 export const getOptions = async (req, res) => {
     try {
         const poll_id = req.params.id;
-        let sql = `SELECT * FROM GROUPS WHERE POLL_ID = $1`;
+        let sql = `SELECT * FROM OPTIONS WHERE POLL_ID = $1`;
         let result = await pool.query(sql, [poll_id]);
-        if (result.rows.length > 0) {
-            res.status(200).json(result.rows);
-        } else {
-            res.status(404).json("Poll not found");
-        }
+        res.status(200).json(result.rows);
     } catch (err) {
         console.log(err);
         res.status(500).json("Internal server error");
@@ -53,6 +49,11 @@ export const addModerator = async (req, res) => {
     try {
         const poll_id = req.params.id;
         const std_id = req.params.std_id;
+
+        if (isVerified(std_id) == false) {
+            res.status(400).json("user not verified");
+            return;
+        }
         let sql = `INSERT INTO MODERATIONS(POLL_ID, STD_ID) VALUES($1, $2) RETURNING *`;
         let result = await pool.query(sql, [poll_id, std_id]);
         if (result.rows.length > 0) {
@@ -70,7 +71,7 @@ export const removeModerator = async (req, res) => {
     try {
         const poll_id = req.params.id;
         const std_id = req.params.std_id;
-        let sql = `DELETE FROM MODERATIONS WHERE POLL_ID = $1 AND STD_ID = $2 RETURNING *`;
+        let sql = `DELETE FROM MODERATIONS WHERE POLL_ID = $1 AND STD_ID = $2 AND ROLE = 'MODERATOR' RETURNING *`;
         let result = await pool.query(sql, [poll_id, std_id]);
         if (result.rows.length > 0) {
             res.status(200).json(result.rows[0]);
@@ -86,6 +87,14 @@ export const removeModerator = async (req, res) => {
 export const addOption = async (req, res) => {
     try {
         const poll_id = req.params.id;
+
+        if ((await isStarted(poll_id)) == true) {
+            res.status(400).json(
+                "You can't remove group after the poll started"
+            );
+            return;
+        }
+
         const { text } = req.body;
         let sql = `INSERT INTO OPTIONS(POLL_ID, TEXT) VALUES($1, $2) RETURNING *`;
         let result = await pool.query(sql, [poll_id, text]);
@@ -103,6 +112,14 @@ export const addOption = async (req, res) => {
 export const removeOption = async (req, res) => {
     try {
         const poll_id = req.params.id;
+
+        if ((await isStarted(poll_id)) == true) {
+            res.status(400).json(
+                "You can't remove option after the poll started"
+            );
+            return;
+        }
+
         const option_id = req.params.option_id;
         let sql = `DELETE FROM OPTIONS WHERE ID = $1 RETURNING *`;
         let result = await pool.query(sql, [option_id]);
@@ -120,12 +137,20 @@ export const removeOption = async (req, res) => {
 export const addGroup = async (req, res) => {
     try {
         const poll_id = req.params.id;
-        const { min_stdid, max_stid, point } = req.body;
+
+        if ((await isStarted(poll_id)) == true) {
+            res.status(400).json(
+                "You can't remove group after the poll started"
+            );
+            return;
+        }
+
+        const { min_stdid, max_stdid, point } = req.body;
         let sql = `INSERT INTO GROUPS(POLL_ID, MIN_STDID, MAX_STDID, POINT) VALUES($1, $2, $3, $4) RETURNING *`;
         let result = await pool.query(sql, [
             poll_id,
             min_stdid,
-            max_stid,
+            max_stdid,
             point,
         ]);
         if (result.rows.length > 0) {
@@ -142,6 +167,14 @@ export const addGroup = async (req, res) => {
 export const removeGroup = async (req, res) => {
     try {
         const poll_id = req.params.id;
+
+        if ((await isStarted(poll_id)) == true) {
+            res.status(400).json(
+                "You can't remove group after the poll started"
+            );
+            return;
+        }
+
         const group_id = req.params.group_id;
         let sql = `DELETE FROM GROUPS WHERE ID = $1 RETURNING *`;
         let result = await pool.query(sql, [group_id]);
@@ -159,7 +192,7 @@ export const removeGroup = async (req, res) => {
 export const getResult = async (req, res) => {
     try {
         const poll_id = req.params.id;
-        let sql = `SELECT * FROM OPTIONS WHERE POLL_ID = $1`;
+        let sql = `SELECT * FROM OPTIONS WHERE POLL_ID = $1 ORDER BY SCORE DESC`;
         let result = await pool.query(sql, [poll_id]);
         if (result.rows.length > 0) {
             res.status(200).json(result.rows);
@@ -176,11 +209,13 @@ export const giveVote = async (req, res) => {
     // need update for multiple selections
     try {
         const poll_id = req.params.id;
-        const std_id = req.user.id;
+        const id = req.user.id;
+        const std_id = req.user.std_id;
         const { option_id } = req.body;
-        if (await canVote(std_id, poll_id, option_id)) {
+        if (await canVote(id, std_id, poll_id, option_id)) {
+            console.log("can vote");
             await pool.query("BEGIN");
-            let sql = `UPDATE OPTIONS SET SCORE = SCORE + (SELECT POINT FROM GROUPS WHERE MIN_STDID <= $1 AND MAX_STDID >= $2 AND POLL_ID = $3) WHERE POLL_ID = $4 AND ID = $5 RETURNING *`;
+            let sql = `UPDATE OPTIONS SET SCORE = SCORE + (SELECT POINT FROM GROUPS WHERE MIN_STDID <= $1 AND MAX_STDID >= $2 AND POLL_ID = $3 ORDER BY POINT DESC LIMIT 1) WHERE POLL_ID = $4 AND ID = $5 RETURNING *`;
 
             let result = await pool.query(sql, [
                 std_id,
@@ -190,18 +225,22 @@ export const giveVote = async (req, res) => {
                 option_id,
             ]);
 
+            console.log("score updated");
+
             if (result.rows.length > 0) {
-                sql = `INSERT INTO VOTED(STD_ID, POLL_ID) VALUES($1, $2)`;
-                let result1 = await pool.query(sql, [std_id, poll_id]);
+                sql = `INSERT INTO VOTED(STD_ID, POLL_ID) VALUES($1, $2)RETURNING *`;
+                let result1 = await pool.query(sql, [id, poll_id]);
+                console.log("votting done");
                 if (result1.rows.length > 0) {
                     await pool.query("COMMIT");
+                    console.log("db updated");
                     res.status(200).json(result.rows[0]);
                 }
             } else {
                 res.status(400).json("Voting Failed. Please try again later");
             }
         } else {
-            res.status(401), json("You can't vote");
+            res.status(401).json("You can't vote");
         }
     } catch (err) {
         console.log(err);
@@ -212,6 +251,7 @@ export const giveVote = async (req, res) => {
 export const update = async (req, res) => {
     try {
         const poll_id = req.params.id;
+
         const {
             title,
             started_at,
@@ -222,7 +262,7 @@ export const update = async (req, res) => {
             max_select,
         } = req.body;
         let sql = `UPDATE POLL SET TITLE = $1, STARTED_AT  = $2, FINISHED_AT = $3, VISIBILITY = $4, RESULT_VISIBILITY = $5, MIN_SELECT = $6, MAX_SELECT = $7 WHERE ID = $8 RETURNING *`;
-        let result = await pool.query(sql, [
+        let placeholders = [
             title,
             started_at,
             finished_at,
@@ -231,9 +271,17 @@ export const update = async (req, res) => {
             min_select,
             max_select,
             poll_id,
-        ]);
+        ];
+
+        if (await isStarted(poll_id)) {
+            sql = `UPDATE POLL SET TITLE = $1, VISIBILITY = $2, RESULT_VISIBILITY = $3 WHERE ID = $4 RETURNING *`;
+            placeholders = [title, visibility, result_visibility, poll_id];
+        }
+
+        let result = await pool.query(sql, placeholders);
+
         if (result.rows.length > 0) {
-            res.status(200).json(result.rows);
+            res.status(200).json(result.rows[0]);
         } else {
             res.status(404).json("Poll not found");
         }
@@ -246,7 +294,7 @@ export const update = async (req, res) => {
 export const getModerators = async (req, res) => {
     try {
         const poll_id = req.params.id;
-        let sql = `SELECT * FROM MODERATIONS WHERE POLL_ID = $1 AND ROLE = 'MODERATOR'`;
+        let sql = `SELECT U.ID, U.STD_ID, U.NAME, M.ROLE FROM MODERATIONS M JOIN USERS U ON M.STD_ID = U.ID WHERE POLL_ID = $1`;
         let result = await pool.query(sql, [poll_id]);
         if (result.rows.length > 0) {
             res.status(200).json(result.rows);
@@ -282,19 +330,48 @@ export const getVoters = async (req, res) => {
     }
 };
 
+export const deletePoll = async (req, res) => {
+    try {
+        const poll_id = req.params.id;
+        let sql = `BEGIN`;
+        let result = await pool.query(sql);
+
+        sql = `DELETE FROM POLL WHERE ID = $1`;
+        result = await pool.query(sql, [poll_id]);
+
+        sql = `DELETE FROM GROUPS WHERE POLL_ID = $1`;
+        result = await pool.query(sql, [poll_id]);
+
+        sql = `DELETE FROM MODERATIONS WHERE POLL_ID = $1`;
+        result = await pool.query(sql, [poll_id]);
+
+        sql = `DELETE FROM VOTED WHERE POLL_ID = $1`;
+        result = await pool.query(sql, [poll_id]);
+
+        sql = `DELETE FROM OPTIONS WHERE POLL_ID = $1`;
+        result = await pool.query(sql, [poll_id]);
+
+        sql = `COMMIT`;
+        result = await pool.query(sql);
+
+        res.status(200).json("Poll deleted successfully");
+    } catch (err) {
+        console.log(err);
+        res.status(500).json("Internal server error");
+    }
+};
+
 export const availableMod = async (req, res) => {
     try {
         const poll_id = req.params.id;
         const { q } = req.query;
         const searchPattern = `%${q}%`;
 
-        let sql = `SELECT ID, NAME, STD_ID, EMAIL FROM USERS U WHERE (STD_ID LIKE $1 OR NAME LIKE $2) AND NOT EXISTS(SELECT 1 FROM MODERATIONS WHERE POLL_ID = $3 AND STD_ID = U.ID) ORDER BY NAME ASC`;
+        console.log(searchPattern);
 
-        let result = await pool.query(sql, [
-            searchPattern,
-            searchPattern,
-            poll_id,
-        ]);
+        let sql = `SELECT ID, NAME, STD_ID, EMAIL FROM USERS U WHERE VERIFIED = 'YES' AND LOWER(NAME) LIKE $1 AND NOT EXISTS(SELECT 1 FROM MODERATIONS WHERE POLL_ID = $2 AND STD_ID = U.ID) ORDER BY NAME ASC LIMIT 10`;
+
+        let result = await pool.query(sql, [searchPattern, poll_id]);
         if (result.rows.length > 0) {
             res.status(200).json(result.rows);
         } else {
@@ -306,25 +383,27 @@ export const availableMod = async (req, res) => {
     }
 };
 
-const canVote = async (std_id, poll_id, option_id) => {
+const canVote = async (id, std_id, poll_id, option_id) => {
     try {
-        const vote_possible = true;
-        let sql = `SELECT * FROM GROUPS WHERE MIN_STDID <= $1 AND MAX_STDID >= $2 AND NOT EXISTS(SELECT 1 FROM VOTED WHERE STDID = $3 AND POLL_ID = $4) AND EXISTS(SELECT 1 FROM POLL WHERE STARTED_AT <= NOW() AND FINISHED_AT >= NOW() AND ID = $5) AND POLL_ID = $6`;
+        console.log(id, std_id, poll_id, option_id);
+        let vote_possible = true;
+        let sql = `SELECT * FROM GROUPS WHERE MIN_STDID <= $1 AND MAX_STDID >= $2 AND NOT EXISTS(SELECT 1 FROM VOTED WHERE STD_ID = $3 AND POLL_ID = $4) AND EXISTS(SELECT 1 FROM POLL WHERE STARTED_AT <= NOW() AND FINISHED_AT >= NOW() AND ID = $5) AND POLL_ID = $6`;
 
         let result = await pool.query(sql, [
             std_id,
             std_id,
-            std_id,
+            id,
             poll_id,
             poll_id,
             poll_id,
         ]);
 
         if (result.rows.length <= 0) {
+            console.log("can't vote");
             vote_possible = false;
             return false;
         }
-
+        console.log("can vote");
         sql = `SELECT * FROM OPTIONS WHERE ID = $1 AND POLL_ID = $2`;
 
         result = await pool.query(sql, [option_id, poll_id]);
@@ -338,5 +417,31 @@ const canVote = async (std_id, poll_id, option_id) => {
     } catch (err) {
         console.log(err);
         return false;
+    }
+};
+
+const isStarted = async (poll_id) => {
+    try {
+        const sql = `SELECT * FROM POLL WHERE EXISTS(SELECT 1 FROM VOTED WHERE POLL_ID = $1)`;
+        const result = await pool.query(sql, [poll_id]);
+
+        if (result.rows.length > 0) return true;
+        return false;
+    } catch (err) {
+        console.log(err);
+        return true;
+    }
+};
+
+const isVerified = async (id) => {
+    try {
+        const sql = `SELECT * FROM USERS WHERE ID = $1 AND VERIFIED = 'YES`;
+        const result = await pool.query(sql, [id]);
+
+        if (result.rows.length > 0) return true;
+        return false;
+    } catch (err) {
+        console.log(err);
+        return true;
     }
 };

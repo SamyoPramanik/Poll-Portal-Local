@@ -40,7 +40,7 @@ const SignUpPage = () => {
                     theme: "colored",
                     hideProgressBar: true,
                 });
-                router.replace("/polls");
+                router.replace("/sign-in");
             } else if (response.status == 400) {
                 const msg = await response.json();
                 toast.error(msg, {

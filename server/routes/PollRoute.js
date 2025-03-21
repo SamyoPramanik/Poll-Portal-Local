@@ -5,6 +5,7 @@ import {
     addOption,
     addSubpoll,
     availableMod,
+    deletePoll,
     getGroups,
     getModerators,
     getOptions,
@@ -101,6 +102,13 @@ PollRouter.post(
     update
 );
 PollRouter.get(
+    "/:id/delete",
+    verifyToken,
+    verifyEmail,
+    verifyCreator,
+    deletePoll
+);
+PollRouter.get(
     "/:id/moderators",
     verifyToken,
     verifyEmail,
@@ -136,6 +144,6 @@ PollRouter.get(
     verifyModerator,
     getVoters
 );
-PollRouter.get("/searchUser", verifyToken, verifyEmail, availableMod);
+PollRouter.get("/:id/searchUser", verifyToken, verifyEmail, availableMod);
 
 export default PollRouter;

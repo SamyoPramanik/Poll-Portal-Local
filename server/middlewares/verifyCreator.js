@@ -17,7 +17,7 @@ export const verifyCreator = async (req, res, next) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(403).json("Access Token verification failed");
+        res.status(403).json("Not creator");
         return;
     }
 };

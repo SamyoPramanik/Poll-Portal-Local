@@ -7,8 +7,7 @@ export const verifyModerator = async (req, res, next) => {
         const poll_id = req.params.id;
         const user_id = req.user.id;
 
-        let sql = `SELECT * FROM MODERATIONS WHERE POLL_ID = $1 AND STD_ID = $2'
-`;
+        let sql = `SELECT * FROM MODERATIONS WHERE POLL_ID = $1 AND STD_ID = $2`;
         let result = await pool.query(sql, [poll_id, user_id]);
 
         if (result.rows.length == 1) next();
@@ -17,7 +16,7 @@ export const verifyModerator = async (req, res, next) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(403).json("Access Token verification failed");
+        res.status(403).json("Not moderator");
         return;
     }
 };

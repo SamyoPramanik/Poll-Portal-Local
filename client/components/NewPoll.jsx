@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const NewPoll = ({ setVisibility }) => {
+    const ref = useRef();
     const [formData, setFormData] = useState({
         title: "",
         started_at: "",
@@ -13,6 +14,10 @@ const NewPoll = ({ setVisibility }) => {
         max_select: 1,
     });
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        ref.current.focus();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -54,7 +59,7 @@ const NewPoll = ({ setVisibility }) => {
         }
     };
     return (
-        <div className="flex w-3/4 md:w-1/4 flex-col p-10 bg-slate-100 rounded-lg">
+        <div className="flex w-3/4 md:w-1/2 flex-col p-10 bg-slate-100 rounded-lg">
             <div className="text-4xl font-bold text-sky-700">Create Poll</div>
             <form onSubmit={handleSubmit} className="flex flex-col mt-10 gap-5">
                 <div className="flex flex-col gap-1">
@@ -66,6 +71,7 @@ const NewPoll = ({ setVisibility }) => {
                         value={formData.title}
                         onChange={handleChange}
                         required
+                        ref={ref}
                     />
                 </div>
                 <div className="flex gap-2">
@@ -126,7 +132,7 @@ const NewPoll = ({ setVisibility }) => {
 
                 <div className="flex w-full gap-2">
                     <button
-                        className="bg-slate-400 p-2 hover:bg-slate-700 cursor-pointer rounded-sm text-white w-full"
+                        className="bg-slate-300 p-2 hover:bg-slate-400 cursor-pointer rounded-sm w-full"
                         type="button"
                         onClick={() => setVisibility(false)}
                     >
