@@ -1,7 +1,0 @@
-{
-  "/poll/[pollId]/groups/page": "app/poll/[pollId]/groups/page.js",
-  "/poll/[pollId]/view-result/page": "app/poll/[pollId]/view-result/page.js",
-  "/page": "app/page.js",
-  "/poll/[pollId]/moderators/page": "app/poll/[pollId]/moderators/page.js",
-  "/sign-in/page": "app/sign-in/page.js"
-}
