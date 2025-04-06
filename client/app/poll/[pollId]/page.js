@@ -8,21 +8,51 @@ const Pollpage = () => {
     const { pollId } = params;
     const [poll, setPoll] = useState(null);
     const [options, setOptions] = useState([]);
+    const [groups, setGroups] = useState([]);
     const [selectedId, setSelectedId] = useState(0);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     useEffect(() => {
         try {
             (async () => {
-                const response = await fetch(
+                let response = await fetch(
                     `http://localhost:5004/common/poll/${pollId}`,
                     { credentials: "include" }
                 );
 
                 if (response.status == 200) {
                     const data = await response.json();
+
+                    const now = new Date();
+                    const started_at = new Date(data.started_at);
+                    if (now < started_at) {
+                        toast.info("Poll is not started", {
+                            theme: "colored",
+                            hideProgressBar: true,
+                        });
+                        router.replace(`/polls`);
+                        return;
+                    } else {
+                        response = await fetch(
+                            `http://localhost:5004/poll/${pollId}/resultAvailable`,
+                            { credentials: "include" }
+                        );
+
+                        if (response.status == 200) {
+                            router.replace(`${pollId}/view-result`);
+                            return;
+                        }
+                    }
+
                     setPoll(data);
                     setOptions(data.options);
+                    setGroups(data.groups);
+                } else {
+                    toast.error("You can't vote this poll", {
+                        theme: "colored",
+                        hideProgressBar: true,
+                    });
+                    router.replace(`/polls`);
                 }
             })();
         } catch (err) {
@@ -83,7 +113,41 @@ const Pollpage = () => {
         <div className="flex w-full justify-center">
             <div className="flex flex-col w-1/2 mt-5 gap-3">
                 <div className="text-3xl font-semibold">{poll?.title}</div>
-                <div className="flex flex-col gap-2">
+                <div className="flex w-full flex-col">
+                    {groups.length > 0 ? (
+                        <div className="flex flex-col mt-5">
+                            <table className="w-full">
+                                <tbody>
+                                    <tr className="border-b-2 border-b-slate-100">
+                                        <th className="text-left p-2">
+                                            Student Id
+                                        </th>
+                                        <th className="text-center p-2">
+                                            Points
+                                        </th>
+                                    </tr>
+                                    {groups.map((group, idx) => (
+                                        <tr
+                                            key={idx}
+                                            className="border-b-2 border-b-slate-100"
+                                        >
+                                            <td className="p-2">
+                                                {group.min_stdid} -{" "}
+                                                {group.max_stdid}
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                {group.point}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div>No Groups </div>
+                    )}
+                </div>
+                <div className="flex flex-col gap-2 mt-5">
                     {options.map((option, idx) => (
                         <div
                             key={idx}

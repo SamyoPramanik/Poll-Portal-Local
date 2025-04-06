@@ -16,7 +16,7 @@ const PollCard = ({
                 <div className="text-2xl font-semibold">{title}</div>
                 {moderator == "YES" && (
                     <Link
-                        className="text-sm text-sky-700 hover:underline"
+                        className="text-sm text-sky-700hover:underline"
                         href={`./poll/${id}/settings`}
                     >
                         Edit

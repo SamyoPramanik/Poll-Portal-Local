@@ -35,7 +35,7 @@ const PollResultPage = () => {
                             theme: "colored",
                             hideProgressBar: true,
                         });
-                        router.replace("/");
+                        router.replace("/polls");
                     }
                 }
             })();

@@ -261,7 +261,7 @@ export const update = async (req, res) => {
             min_select,
             max_select,
         } = req.body;
-        let sql = `UPDATE POLL SET TITLE = $1, STARTED_AT  = $2, FINISHED_AT = $3, VISIBILITY = $4, RESULT_VISIBILITY = $5, MIN_SELECT = $6, MAX_SELECT = $7 WHERE ID = $8 RETURNING *`;
+        let sql = `UPDATE POLL SET TITLE = $1, STARTED_AT  = $2::timestamp AT TIME ZONE 'Asia/Dhaka', FINISHED_AT = $3::timestamp AT TIME ZONE 'Asia/Dhaka', VISIBILITY = $4, RESULT_VISIBILITY = $5, MIN_SELECT = $6, MAX_SELECT = $7 WHERE ID = $8 RETURNING *`;
         let placeholders = [
             title,
             started_at,
@@ -274,6 +274,7 @@ export const update = async (req, res) => {
         ];
 
         if (await isStarted(poll_id)) {
+            console.log("poll is started");
             sql = `UPDATE POLL SET TITLE = $1, VISIBILITY = $2, RESULT_VISIBILITY = $3 WHERE ID = $4 RETURNING *`;
             placeholders = [title, visibility, result_visibility, poll_id];
         }
@@ -380,6 +381,31 @@ export const availableMod = async (req, res) => {
     } catch (err) {
         console.log(err);
         res.status(500).json("Internal server error");
+    }
+};
+
+export const resultAvailable = async (req, res) => {
+    try {
+        const poll_id = req.params.id;
+        const id = req.user.id;
+        const std_id = req.user.std_id;
+
+        let sql = `SELECT * FROM POLL WHERE ID = $1 AND (EXISTS(SELECT * FROM VOTED WHERE STD_ID = $2 AND POLL_ID = $3) OR (NOT EXISTS(SELECT * FROM GROUPS WHERE MIN_STDID <= $4 AND MAX_STDID >= $5 AND POLL_ID = $6) AND VISIBILITY = 'PUBLIC' AND RESULT_VISIBILITY = 'PUBLIC'))`;
+        let result = await pool.query(sql, [
+            poll_id,
+            id,
+            poll_id,
+            std_id,
+            std_id,
+            poll_id,
+        ]);
+
+        if (result.rows.length > 0) {
+            res.status(200).json("yes");
+        } else res.status(401).json("no");
+    } catch (err) {
+        console.log(err);
+        res.status(401).json("no");
     }
 };
 

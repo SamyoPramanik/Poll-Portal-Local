@@ -53,6 +53,9 @@ export const getPoll = async (req, res) => {
             sql = `SELECT ID, POLL_ID, TEXT FROM OPTIONS WHERE POLL_ID = $1`;
             result = await pool.query(sql, [poll_id]);
             poll = { ...poll, options: result.rows };
+            sql = `SELECT * FROM GROUPS WHERE POLL_ID = $1`;
+            result = await pool.query(sql, [poll_id]);
+            poll = { ...poll, groups: result.rows };
             res.status(200).json(poll);
         } else {
             res.status(404).json("no poll found");
@@ -87,7 +90,7 @@ export const createPoll = async (req, res) => {
 
         let result = await pool.query(`BEGIN`);
 
-        let sql = `INSERT INTO POLL(TITLE, STARTED_AT, FINISHED_AT, VISIBILITY, RESULT_VISIBILITY, MIN_SELECT, MAX_SELECT) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
+        let sql = `INSERT INTO POLL(TITLE, STARTED_AT, FINISHED_AT, VISIBILITY, RESULT_VISIBILITY, MIN_SELECT, MAX_SELECT) VALUES($1, $2::timestamp AT TIME ZONE 'Asia/Dhaka', $3::timestamp AT TIME ZONE 'Asia/Dhaka', $4, $5, $6, $7) RETURNING *`;
         result = await pool.query(sql, [
             title,
             started_at,
@@ -102,7 +105,7 @@ export const createPoll = async (req, res) => {
         sql = `INSERT INTO MODERATIONS(POLL_ID, STD_ID, ROLE) VALUES($1, $2, $3)`;
         result = await pool.query(sql, [poll.id, creator_id, "CREATOR"]);
         result = await pool.query("COMMIT");
-        res.status(200).json("poll created");
+        res.status(200).json(poll);
     } catch (err) {
         console.log(err);
         await pool.query("ROLLBACK");

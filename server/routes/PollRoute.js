@@ -18,6 +18,7 @@ import {
     removeModerator,
     removeOption,
     removeSubpoll,
+    resultAvailable,
     update,
 } from "../controllers/PollController.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
@@ -143,6 +144,12 @@ PollRouter.get(
     verifyEmail,
     verifyModerator,
     getVoters
+);
+PollRouter.get(
+    "/:id/resultAvailable",
+    verifyToken,
+    verifyEmail,
+    resultAvailable
 );
 PollRouter.get("/:id/searchUser", verifyToken, verifyEmail, availableMod);
 

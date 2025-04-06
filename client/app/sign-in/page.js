@@ -7,9 +7,9 @@ import { toast } from "react-toastify";
 const SignInPage = () => {
     const router = useRouter();
 
-    const { signedIn } = useUserStore();
+    const { signedIn, setUserInfo, setSignedIn } = useUserStore();
     useEffect(() => {
-        if (signedIn) router.replace("/");
+        if (signedIn) router.replace("/polls");
     }, []);
 
     const [formData, setFormData] = useState({ student_id: "", password: "" });
@@ -30,11 +30,26 @@ const SignInPage = () => {
                 body: JSON.stringify(formData),
             });
             if (response?.status == 200) {
-                router.back();
                 toast.info(`Welcome`, {
                     theme: "colored",
                     hideProgressBar: true,
                 });
+
+                const response = await fetch(
+                    "http://localhost:5004/auth/profile",
+                    { credentials: "include" }
+                );
+
+                if (response.status == 200) {
+                    const user = await response.json();
+                    setUserInfo(user);
+                    setSignedIn(true);
+
+                    console.log(user);
+                    if (user.verified == "NO")
+                        router.replace("/otp-verification");
+                    else router.replace("/polls");
+                }
             } else {
                 toast.error("Credentials Error", {
                     theme: "colored",

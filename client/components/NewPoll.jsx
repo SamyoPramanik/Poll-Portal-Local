@@ -1,9 +1,11 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const NewPoll = ({ setVisibility }) => {
     const ref = useRef();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         title: "",
         started_at: "",
@@ -42,6 +44,9 @@ const NewPoll = ({ setVisibility }) => {
                     hideProgressBar: true,
                 });
                 setVisibility(false);
+
+                const data = await response.json();
+                router.push(`/poll/${data.id}/settings`);
             } else {
                 toast.error("Poll creation failed", {
                     theme: "colored",
