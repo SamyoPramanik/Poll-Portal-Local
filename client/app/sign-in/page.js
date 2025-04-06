@@ -23,7 +23,7 @@ const SignInPage = () => {
         e.preventDefault();
         try {
             setLoading(false);
-            const response = await fetch("http://localhost:5004/auth/sign-in", {
+            const response = await fetch(`http://localhost:5004/auth/sign-in`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -36,7 +36,7 @@ const SignInPage = () => {
                 });
 
                 const response = await fetch(
-                    "http://localhost:5004/auth/profile",
+                    `http://localhost:5004/auth/profile`,
                     { credentials: "include" }
                 );
 

@@ -30,7 +30,7 @@ const NewPoll = ({ setVisibility }) => {
         try {
             setLoading(false);
             const response = await fetch(
-                "http://localhost:5004/common/poll/create",
+                `http://localhost:5004/common/poll/create`,
                 {
                     method: "POST",
                     credentials: "include",

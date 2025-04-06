@@ -28,7 +28,7 @@ const SignUpPage = () => {
         e.preventDefault();
         try {
             setLoading(false);
-            const response = await fetch("http://localhost:5004/auth/sign-up", {
+            const response = await fetch(`http://localhost:5004/auth/sign-up`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
