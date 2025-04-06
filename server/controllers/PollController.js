@@ -22,11 +22,7 @@ export const getGroups = async (req, res) => {
         const poll_id = req.params.id;
         let sql = `SELECT * FROM GROUPS WHERE POLL_ID = $1`;
         let result = await pool.query(sql, [poll_id]);
-        if (result.rows.length > 0) {
-            res.status(200).json(result.rows);
-        } else {
-            res.status(404).json("Poll not found");
-        }
+        res.status(200).json(result.rows);
     } catch (err) {
         console.log(err);
         res.status(500).json("Internal server error");

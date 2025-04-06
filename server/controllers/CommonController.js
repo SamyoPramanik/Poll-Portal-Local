@@ -2,7 +2,8 @@ import { pool } from "../db.js";
 
 export const getPolls = async (req, res) => {
     try {
-        const std_id = req.user.id;
+        const id = req.user.id;
+        const std_id = req.user.std_id;
         let sql = `SELECT 
     P.ID, 
     P.TITLE, 
@@ -22,7 +23,7 @@ WHERE
 ORDER BY P.STARTED_AT DESC;
 `;
 
-        let result = await pool.query(sql, [std_id, std_id, std_id, std_id]);
+        let result = await pool.query(sql, [id, id, std_id, std_id]);
         if (result.rows.length > 0) {
             res.status(200).json(result.rows);
         } else {
@@ -37,13 +38,14 @@ ORDER BY P.STARTED_AT DESC;
 export const getPoll = async (req, res) => {
     try {
         const poll_id = req.params.id;
-        const std_id = req.user.id;
+        const std_id = req.user.std_id;
+        const id = req.user.id;
 
         let sql = `SELECT ID, TITLE, STARTED_AT, FINISHED_AT, (SELECT COUNT(*) FROM VOTED WHERE POLL_ID = P.ID) FROM POLL P WHERE ID = $1 AND (VISIBILITY = 'PUBLIC' OR EXISTS(SELECT 1 FROM MODERATIONS WHERE STD_ID = $2 AND POLL_ID = P.ID) OR EXISTS(SELECT 1 FROM GROUPS WHERE MIN_STDID <= $3 AND MAX_STDID >= $4 AND POLL_ID = $5))`;
 
         let result = await pool.query(sql, [
             poll_id,
-            std_id,
+            id,
             std_id,
             std_id,
             poll_id,

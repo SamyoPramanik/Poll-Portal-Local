@@ -55,7 +55,11 @@ const NavBar = () => {
     };
     return (
         <div className="flex sticky p-4">
-            <div className="flex flex-1 text-4xl font-bold">Poll Portal</div>
+            <div className="flex flex-1 text-4xl font-bold">
+                <Link href="/" className="cursor-pointer">
+                    Poll Portal
+                </Link>
+            </div>
             {signedIn && (
                 <div className="flex gap-4 items-center">
                     <div>

@@ -36,13 +36,27 @@ const SignUpPage = () => {
                 body: JSON.stringify(formData),
             });
             if (response.status == 200) {
-                toast.info("Welcome", {
+                toast.info("Sign Up successful. Sign in to your account", {
                     theme: "colored",
                     hideProgressBar: true,
                 });
                 router.replace("/sign-in");
+            } else if (response.status == 403) {
+                toast.error("User with this Student id already exists", {
+                    theme: "colored",
+                    hideProgressBar: true,
+                });
+                setLoading(false);
             } else if (response.status == 400) {
                 const msg = await response.json();
+                toast.error(msg, {
+                    theme: "colored",
+                    hideProgressBar: true,
+                });
+                setLoading(false);
+            } else {
+                const msg = await response.json();
+
                 toast.error(msg, {
                     theme: "colored",
                     hideProgressBar: true,
