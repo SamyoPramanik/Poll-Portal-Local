@@ -7,12 +7,12 @@ import commonRouter from "./routes/CommonRoute.js";
 import PollRouter from "./routes/PollRoute.js";
 import { pool } from "./db.js";
 
-const port = 5004;
+const port = 5000;
 
 const app = express();
 
 dotenv.config();
-app.use(cors({ origin: "https://pollportal.vercel.app", credentials: true }));
+app.use(cors({ origin: ["https://pollportal.vercel.app", "http://localhost:3000"], credentials: true }));
 app.use(express.json());
 app.use(cookieparser(process.env.COOKIE_SECRET));
 

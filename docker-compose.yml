@@ -6,13 +6,24 @@ services:
       - "5000:5000"
     depends_on:
       - db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=polldb
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - COOKIE_SECRET=DKSFJSDJAjskdjflsjdkfjsdosgijejg
+      - JWT_SECRET=SDGLKSLJGAKSOGISDGBGB654645
   client:
-    build: ./client
+    build:
+      context: ./client
+      args:
+        NEXT_PUBLIC_SERVER_URL: http://localhost:5000
     container_name: pollclient
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_SERVER_URL=http://pollserver:5000
+      - NEXT_PUBLIC_SERVER_URL=http://localhost:5000
     depends_on:
       - server
       - db

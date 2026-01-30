@@ -157,8 +157,10 @@ const sendOtp = async (email) => {
         }
         if (db_updated) {
             {
+
                 await sendEmail(email, otp);
-                console.log("otp sent to email");
+                console.log("otp sent to email: ", email);
+                console.log("otp: ", otp);
             } // res.status(200).json("otp sent");
         }
     } catch (err) {
@@ -191,7 +193,7 @@ export const verifyOtp = async (req, res) => {
     }
 };
 
-export const updatePassword = async (req, res) => {};
+export const updatePassword = async (req, res) => { };
 
 const generateOtp = () => {
     return Math.floor(123456 + Math.random() * 900000);
