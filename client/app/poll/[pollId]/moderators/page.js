@@ -26,7 +26,7 @@ const PollModeratorsPage = () => {
         (async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5004/poll/${pollId}`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}`,
                     { credentials: "include" }
                 );
                 if (response.status == 200) {
@@ -45,7 +45,7 @@ const PollModeratorsPage = () => {
     const removeModerator = async (moderatorId) => {
         try {
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/remove-moderator/${moderatorId}`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/remove-moderator/${moderatorId}`,
                 {
                     credentials: "include",
                 }
@@ -74,7 +74,7 @@ const PollModeratorsPage = () => {
     const getModerators = async () => {
         try {
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/moderators`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/moderators`,
                 { credentials: "include" }
             );
             if (response.status == 200) {

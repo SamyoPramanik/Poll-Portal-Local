@@ -22,13 +22,16 @@ const SignInPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
-            const response = await fetch(`http://localhost:5004/auth/sign-in`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            });
+            setLoading(true);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/sign-in`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData),
+                }
+            );
             if (response?.status == 200) {
                 toast.info(`Welcome`, {
                     theme: "colored",
@@ -36,7 +39,7 @@ const SignInPage = () => {
                 });
 
                 const response = await fetch(
-                    `http://localhost:5004/auth/profile`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/profile`,
                     { credentials: "include" }
                 );
 

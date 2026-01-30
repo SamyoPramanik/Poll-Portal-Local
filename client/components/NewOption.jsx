@@ -20,9 +20,9 @@ const NewOption = ({ setVisibility, pollId, getOptions }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
+            setLoading(true);
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/add-option`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/add-option`,
                 {
                     method: "POST",
                     credentials: "include",

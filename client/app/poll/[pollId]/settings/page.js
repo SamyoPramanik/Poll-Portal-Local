@@ -22,7 +22,7 @@ const PollSettingsPage = () => {
     useEffect(() => {
         (async () => {
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}`,
                 { credentials: "include" }
             );
             const data = await response.json();
@@ -46,9 +46,9 @@ const PollSettingsPage = () => {
 
         if (sureToDelete == true) {
             try {
-                setLoading(false);
+                setLoading(true);
                 const response = await fetch(
-                    `http://localhost:5004/poll/${pollId}/delete`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/delete`,
                     {
                         credentials: "include",
                         headers: { "Content-Type": "application/json" },
@@ -86,9 +86,9 @@ const PollSettingsPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
+            setLoading(true);
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/update`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/update`,
                 {
                     method: "POST",
                     credentials: "include",

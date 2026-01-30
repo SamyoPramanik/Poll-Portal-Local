@@ -28,9 +28,9 @@ const NewPoll = ({ setVisibility }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
+            setLoading(true);
             const response = await fetch(
-                `http://localhost:5004/common/poll/create`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/common/poll/create`,
                 {
                     method: "POST",
                     credentials: "include",

@@ -16,7 +16,7 @@ const Pollpage = () => {
         try {
             (async () => {
                 let response = await fetch(
-                    `http://localhost:5004/common/poll/${pollId}`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/common/poll/${pollId}`,
                     { credentials: "include" }
                 );
 
@@ -34,7 +34,7 @@ const Pollpage = () => {
                         return;
                     } else {
                         response = await fetch(
-                            `http://localhost:5004/poll/${pollId}/resultAvailable`,
+                            `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/resultAvailable`,
                             { credentials: "include" }
                         );
 
@@ -65,7 +65,7 @@ const Pollpage = () => {
             const formData = { option_id: selectedId };
             setLoading(true);
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/vote`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/vote`,
                 {
                     method: "POST",
                     credentials: "include",

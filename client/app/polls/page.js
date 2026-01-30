@@ -10,7 +10,7 @@ const Pollspage = () => {
         try {
             (async () => {
                 const response = await fetch(
-                    `http://localhost:5004/common/polls`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/common/polls`,
                     {
                         credentials: "include",
                     }

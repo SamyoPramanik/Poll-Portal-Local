@@ -18,7 +18,7 @@ const NavBar = () => {
             (async () => {
                 try {
                     const response = await fetch(
-                        "http://localhost:5004/auth/profile",
+                        `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/profile`,
                         {
                             credentials: "include",
                             cache: "no-store",
@@ -43,7 +43,7 @@ const NavBar = () => {
         }
     }, []);
     const signOut = async () => {
-        await fetch(`http://localhost:5004/auth/sign-out`, {
+        await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/sign-out`, {
             credentials: "include",
         });
         setSignedIn(false);

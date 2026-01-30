@@ -27,14 +27,17 @@ const SignUpPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
-            const response = await fetch(`http://localhost:5004/auth/sign-up`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
+            setLoading(true);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/sign-up`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
 
-                body: JSON.stringify(formData),
-            });
+                    body: JSON.stringify(formData),
+                }
+            );
             if (response.status == 200) {
                 toast.info("Sign Up successful. Sign in to your account", {
                     theme: "colored",

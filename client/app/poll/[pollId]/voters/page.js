@@ -22,7 +22,7 @@ const PollVotersPage = () => {
         (async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5004/poll/${pollId}`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}`,
                     { credentials: "include" }
                 );
                 if (response.status == 200) {
@@ -47,7 +47,7 @@ const PollVotersPage = () => {
     const getVoters = async () => {
         try {
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/voters`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/voters`,
                 { credentials: "include" }
             );
             if (response.status == 200) {

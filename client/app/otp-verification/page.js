@@ -22,9 +22,9 @@ const OtpVerifcationPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
+            setLoading(true);
             const response = await fetch(
-                `http://localhost:5004/auth/verify-otp`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/verify-otp`,
                 {
                     method: "POST",
                     credentials: "include",

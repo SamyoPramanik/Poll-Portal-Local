@@ -23,9 +23,9 @@ const NewGroup = ({ setVisibility, pollId, getGroups }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(false);
+            setLoading(true);
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/add-group`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/add-group`,
                 {
                     method: "POST",
                     credentials: "include",

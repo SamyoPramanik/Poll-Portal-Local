@@ -24,7 +24,14 @@ export const signIn = async (req, res) => {
             });
 
             console.log(token);
-            res.status(200).cookie("token", token).json("SignIn successful");
+            res.status(200)
+                .cookie("token", token, {
+                    httpOnly: true,
+                    secure: true, // required for cross-site cookies
+                    sameSite: "None", // required for cross-site cookies
+                    // domain: ".yourdomain.com" // optional for subdomains
+                })
+                .json("SignIn successful");
         } else {
             res.status(404).json("Invalid credentials");
         }
@@ -45,7 +52,7 @@ export const signUp = async (req, res) => {
             return;
         }
 
-        if (!student_email || student_email.length < 12) {
+        if (!student_email || !isBuetEmail(student_email)) {
             res.status(400).json(
                 "Invalid email. Try with your institutional email"
             );
@@ -308,4 +315,8 @@ const sendEmail = async (email, otp) => {
         console.log(err);
         return false;
     }
+};
+
+const isBuetEmail = (email) => {
+    return email.toLowerCase().endsWith("buet.ac.bd");
 };

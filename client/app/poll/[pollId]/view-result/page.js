@@ -14,7 +14,7 @@ const PollResultPage = () => {
         try {
             (async () => {
                 let response = await fetch(
-                    `http://localhost:5004/common/poll/${pollId}`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/common/poll/${pollId}`,
                     { credentials: "include" }
                 );
 
@@ -23,7 +23,7 @@ const PollResultPage = () => {
                     setPoll(data);
 
                     response = await fetch(
-                        `http://localhost:5004/common/poll/${pollId}/result`,
+                        `${process.env.NEXT_PUBLIC_SERVER_URL}/common/poll/${pollId}/result`,
                         { credentials: "include" }
                     );
 

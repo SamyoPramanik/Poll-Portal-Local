@@ -25,7 +25,7 @@ const PollOptionsPage = () => {
         (async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5004/poll/${pollId}`,
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}`,
                     { credentials: "include" }
                 );
                 if (response.status == 200) {
@@ -44,7 +44,7 @@ const PollOptionsPage = () => {
     const removeOption = async (optionId) => {
         try {
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/remove-option/${optionId}`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/remove-option/${optionId}`,
                 { credentials: "include" }
             );
             if (response?.status == 200) {
@@ -76,7 +76,7 @@ const PollOptionsPage = () => {
     const getOptions = async () => {
         try {
             const response = await fetch(
-                `http://localhost:5004/poll/${pollId}/options`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/poll/${pollId}/options`,
                 { credentials: "include" }
             );
             if (response.status == 200) {
