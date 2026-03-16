@@ -12,7 +12,6 @@ const port = 5000;
 const app = express();
 
 dotenv.config();
-app.use(cors({ origin: ["https://pollportal.vercel.app", "http://localhost:3000"], credentials: true }));
 app.use(express.json());
 app.use(cookieparser(process.env.COOKIE_SECRET));
 

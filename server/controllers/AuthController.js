@@ -27,9 +27,8 @@ export const signIn = async (req, res) => {
             res.status(200)
                 .cookie("token", token, {
                     httpOnly: true,
-                    secure: true, // required for cross-site cookies
-                    sameSite: "None", // required for cross-site cookies
-                    // domain: ".yourdomain.com" // optional for subdomains
+                    secure: false, // Must be false for HTTP
+                    sameSite: "lax", // Allows cookies for same-origin (Nginx)
                 })
                 .json("SignIn successful");
         } else {
